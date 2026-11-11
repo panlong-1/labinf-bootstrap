@@ -3,6 +3,7 @@
 # bootstrap.sh — PoliTO LabInf 无状态 VM：一步恢复 Claude Code + 课程项目
 # 全程无需 sudo。用法（每次开机后，在终端粘贴一行）：
 #   curl -fsSL https://raw.githubusercontent.com/panlong-1/labinf-bootstrap/main/bootstrap.sh -o /tmp/b.sh && bash /tmp/b.sh
+# VM 的 bash 装了 ble.sh，SPICE 粘贴会带 ^[[200~：先运行 bash --norc 再粘贴。
 # 可用环境变量临时覆盖下面的配置，例如：
 #   REPO=isa-lab AUTH=pat bash /tmp/b.sh
 # 本文件不含任何密钥，可放在公开仓库 / gist。
@@ -13,8 +14,9 @@ set -euo pipefail
 GH_USER="${GH_USER:-panlong-1}"
 REPO="${REPO:-test-and-tolerance}"       # 私有项目仓库名
 BRANCH="${BRANCH:-main}"
-GIT_NAME="${GIT_NAME:-}"                 # 空则运行时询问
-GIT_EMAIL="${GIT_EMAIL:-}"               # 建议用 GitHub noreply 邮箱；空则询问
+GIT_NAME="${GIT_NAME:-panlong-1}"
+# 本仓库是公开的，默认用 GitHub noreply 邮箱，避免把真实邮箱公开；要用别的邮箱就运行时传 GIT_EMAIL=...
+GIT_EMAIL="${GIT_EMAIL:-panlong-1@users.noreply.github.com}"
 AUTH="${AUTH:-gh}"                       # gh  = gh 设备码登录（无需搬运任何密钥）
                                          # pat = 粘贴细粒度 PAT，只存在内存缓存里
 WORK="${WORK:-$HOME/work}"

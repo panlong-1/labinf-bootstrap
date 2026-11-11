@@ -94,12 +94,15 @@ else
   git clone --branch "$BRANCH" "https://github.com/$GH_USER/$REPO.git" "$PROJ"
 fi
 
-# ---------- 5. Shell 快捷命令（写进 ~/.bashrc，关机即随模板还原）----------
+# ---------- 5. Shell 快捷命令（写进 ~/.labinf_rc，关机即随模板还原）----------
+# 单独放一个 rc 文件，不经过 ~/.bashrc：模板的 .bashrc 会加载 ble.sh，
+# 而 ble.sh 会让 SPICE 粘贴进来的命令带上 ^[[200~ 跑不起来。
 say "5/5 安装快捷命令 save / bye"
-MARK="# >>> labinf-bootstrap >>>"
-if ! grep -qF "$MARK" "$HOME/.bashrc" 2>/dev/null; then
-  cat >> "$HOME/.bashrc" <<EOF
-$MARK
+RC="$HOME/.labinf_rc"
+cat > "$RC" <<EOF
+# 由 labinf-bootstrap 生成
+PS1='\[\e[1;32m\]\u@vm\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
+bind 'set enable-bracketed-paste on' 2>/dev/null
 export PATH="\$HOME/.local/bin:\$PATH"
 export PROJ="$PROJ"
 # save [说明]：提交全部改动并推送
@@ -118,8 +121,11 @@ bye() {
   git credential-cache exit 2>/dev/null || true
   systemctl poweroff || echo "关机被拒绝：请用桌面右上角菜单关机"
 }
-# <<< labinf-bootstrap <<<
 EOF
+# 新开的终端：输入 labinf 即进入不带 ble.sh 的 shell（已有 save/bye）
+MARK="# >>> labinf-bootstrap >>>"
+if ! grep -qF "$MARK" "$HOME/.bashrc" 2>/dev/null; then
+  printf '%s\nalias labinf='"'"'bash --rcfile ~/.labinf_rc'"'"'\n# <<< labinf-bootstrap <<<\n' "$MARK" >> "$HOME/.bashrc"
 fi
 
 # 可选：后台自动保存（整点可能被管理员强制关机）
@@ -143,6 +149,7 @@ cat <<EOF
   claude          启动 Claude Code（首次输入 /login，在 VM 浏览器里授权）
   save "说明"     提交并推送
   bye             保存 + 清除凭据 + 关机
+  新开终端后先输入 labinf，再用上面的命令
 EOF
 cd "$PROJ"
-exec bash -i
+exec bash --rcfile "$RC" -i

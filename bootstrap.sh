@@ -69,7 +69,9 @@ if [[ "$AUTH" == "gh" ]]; then
   fi
   if ! gh auth status -h github.com >/dev/null 2>&1; then
     echo "将显示一个 8 位设备码：在 VM 浏览器或手机打开 https://github.com/login/device 输入即可。"
-    gh auth login --hostname github.com --git-protocol https --web
+    # VM 自动登录 labinf，GNOME 登录钥匙环没解锁，gh 默认往钥匙环存 token 会弹
+    # “Authentication required”。改存 ~/.config/gh/hosts.yml：关机随模板还原，bye 也会 logout。
+    gh auth login --hostname github.com --git-protocol https --web --insecure-storage --skip-ssh-key
   fi
   gh auth setup-git
 else

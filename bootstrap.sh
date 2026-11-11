@@ -132,9 +132,16 @@ fi
 if (( AUTOSAVE_MIN > 0 )); then
   PIDF="$HOME/.labinf-autosave.pid"
   if [[ -f "$PIDF" ]]; then kill "$(cat "$PIDF")" 2>/dev/null || true; fi
+  # 工具正在跑、或项目里 2 分钟内还有文件在写时跳过这一轮，免得提交跑到一半的结果。
+  # 用 pgrep -x 只比对进程名（不比对命令行），不会匹配到这个循环自己。
   nohup bash -c "
+    busy() {
+      pgrep -u \"\$USER\" -x 'dc_shell.*|common_shell.*|tmax.*|vsim.*|vish|vlog|vcom|vcs|simv' >/dev/null && return 0
+      [ -n \"\$(find . -path ./.git -prune -o -type f -newermt '-2 minutes' -print -quit 2>/dev/null)\" ]
+    }
     while sleep $((AUTOSAVE_MIN*60)); do
       cd '$PROJ' || exit
+      if busy; then echo \"\$(date '+%F %H:%M') skip: tools running or files still changing\"; continue; fi
       git add -A
       git diff --cached --quiet || git commit -qm \"autosave: VM \$(date '+%F %H:%M')\"
       git pull -q --rebase && git push -q

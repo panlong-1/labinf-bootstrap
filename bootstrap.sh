@@ -11,7 +11,7 @@ set -euo pipefail
 
 # ======== 配置 ========
 GH_USER="${GH_USER:-panlong-1}"
-REPO="${REPO:-YOUR_PROJECT_REPO}"        # 私有项目仓库名
+REPO="${REPO:-test-and-tolerance}"       # 私有项目仓库名
 BRANCH="${BRANCH:-main}"
 GIT_NAME="${GIT_NAME:-}"                 # 空则运行时询问
 GIT_EMAIL="${GIT_EMAIL:-}"               # 建议用 GitHub noreply 邮箱；空则询问
